@@ -58,7 +58,7 @@ defmodule Bling.Paddle.Api do
   defp post(url, params) do
     body = Map.merge(get_auth(), params)
 
-    case HTTPoison.post(url, Jason.encode!(body), [{"Content-Type", "application/json"}]) do
+    case Bling.Paddle.Http.post(url, Jason.encode!(body), [{"Content-Type", "application/json"}]) do
       {:ok, %HTTPoison.Response{} = response} ->
         response.body |> Jason.decode!() |> Map.get("response")
 

@@ -46,7 +46,8 @@ defmodule Bling.Paddle.MixProject do
       {:jason, "~> 1.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0", only: :test},
-      {:faker, "~> 0.17", only: :test}
+      {:faker, "~> 0.17", only: :test},
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 

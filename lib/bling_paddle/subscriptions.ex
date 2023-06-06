@@ -200,14 +200,18 @@ defmodule Bling.Paddle.Subscriptions do
     Api.charge_subscription(subscription, Enum.into(opts, %{}))
   end
 
-  def increment(subscription, opts) do
+  def increment(subscription, opts \\ []) do
     quantity = Keyword.get(opts, :quantity, 1)
 
     update_quantity(subscription, quantity: subscription.quantity + quantity)
   end
 
-  def increment_and_invoice(subscription, opts) do
+  def increment_and_invoice(subscription, opts \\ []) do
     quantity = Keyword.get(opts, :quantity, 1)
+
+    if quantity < 1 do
+      raise "Cannot increment by less than 1."
+    end
 
     update_quantity(subscription,
       quantity: subscription.quantity + quantity,
@@ -215,16 +219,20 @@ defmodule Bling.Paddle.Subscriptions do
     )
   end
 
-  def decrement(subscription, opts) do
+  def decrement(subscription, opts \\ []) do
     quantity = Keyword.get(opts, :quantity, 1)
+
+    if quantity < 1 do
+      raise "Cannot decrement less by less than 1."
+    end
 
     update_quantity(subscription, quantity: subscription.quantity - quantity)
   end
 
-  def update_quantity(subscription, opts) do
+  def update_quantity(subscription, opts \\ []) do
     guard_against_updates!(subscription)
     bling = Entity.bling(subscription)
-    quantity = opts[:quantity]
+    quantity = Keyword.get(opts, :quantity, 1)
 
     if quantity < 1 do
       raise "Paddle does not allow subscriptions to have a quantity of zero."
