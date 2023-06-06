@@ -1,0 +1,17 @@
+defmodule <%= @module_name %>.Bling do
+  use Bling.Paddle,
+    repo: <%= @module_name %>.Repo,
+    customers: [
+      # user: <%= @module_name %>.Accounts.User
+    ],
+    subscription: <%= @module_name %>.Subscriptions.Subscription,
+    receipt: <%= @module_name %>.Subscriptions.Receipt
+
+    def paddle_customer_info(customer) do
+      # valid map keys are `email`, `country`, and `postcode`
+      case customer do
+        # %<%= @module_name %>.Accounts.User{} -> %{email: customer.email}
+        _ -> %{}
+      end
+    end
+end

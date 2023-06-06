@@ -1,0 +1,9 @@
+defmodule <%= @module_name %>.Repo.Migrations.<%= @schema_name %>CustomerColumns do
+  use Ecto.Migration
+
+  def change do
+    alter table(:<%= @table_name %>) do
+      add :trial_ends_at, :utc_datetime, null: true
+    end
+  end
+end
