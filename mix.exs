@@ -16,7 +16,7 @@ defmodule Bling.Paddle.MixProject do
         links: %{
           "GitHub" => "https://github.com/ozziexsh/bling_paddle"
         },
-        files: ~w(priv/static lib stubs mix.exs README.md .formatter.exs)
+        files: ~w(lib stubs mix.exs README.md .formatter.exs)
       ],
       docs: [
         main: "readme",
