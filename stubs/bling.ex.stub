@@ -14,4 +14,8 @@ defmodule <%= @module_name %>.Bling do
         _ -> %{}
       end
     end
+
+    def handle_paddle_webhook_event(_event) do
+      :ok
+    end
 end

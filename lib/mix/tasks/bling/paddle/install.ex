@@ -12,7 +12,7 @@ defmodule Mix.Tasks.Bling.Paddle.Install do
 
   def run(_) do
     project_directory = Mix.Project.build_path() |> String.split("_build") |> List.first()
-    dep_directory = Mix.Project.deps_paths(depth: 1) |> Map.fetch!(:bling)
+    dep_directory = Mix.Project.deps_paths(depth: 1) |> Map.fetch!(:bling_paddle)
     # trim elixir. from the module name
     module_name = Mix.Project.get() |> to_string() |> String.split(".") |> Enum.at(1)
 

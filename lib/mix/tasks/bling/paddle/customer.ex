@@ -14,7 +14,7 @@ defmodule Mix.Tasks.Bling.Paddle.Customer do
 
   def run([table]) do
     project_directory = Mix.Project.build_path() |> String.split("_build") |> List.first()
-    dep_directory = Mix.Project.deps_paths(depth: 1) |> Map.fetch!(:bling)
+    dep_directory = Mix.Project.deps_paths(depth: 1) |> Map.fetch!(:bling_paddle)
     module_name = Mix.Project.get() |> to_string() |> String.split(".") |> Enum.at(1)
 
     stub_path = Path.join([dep_directory, "stubs/customer_migration.exs.stub"])

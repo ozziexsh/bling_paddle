@@ -26,7 +26,7 @@ defmodule Bling.Paddle do
       end
 
       for entity <- [@subscription, @receipt | Keyword.values(@customers)] do
-        defimpl Bling.Entity, for: entity do
+        defimpl Bling.Paddle.Entity, for: entity do
           def repo(_entity), do: unquote(opts[:repo])
           def bling(_entity), do: unquote(opts[:caller])
         end
