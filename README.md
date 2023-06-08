@@ -30,20 +30,6 @@ def deps do
 end
 ```
 
-Configure your paddle credentials:
-
-```elixir
-config :bling_paddle, :paddle,
-  sandbox: true, # make sure to set to false when in production
-  vendor_id: 12345,
-  vendor_auth_code: "auth-code-here",
-  public_key: """
-  -----BEGIN PUBLIC KEY-----
-  your paddle webhook public key here
-  -----END PUBLIC KEY-----
-  """
-```
-
 Run the install command to create the migrations and schemas:
 
 ```shell
@@ -80,14 +66,28 @@ defmodule MyApp.Accounts.User do
 end
 ```
 
-We can then register this customer in our Bling module that was generated for us:
+We must register our authentication, currency, and all of the generated modules in our `config/config.exs` file:
 
 ```elixir
-# lib/my_app/bling.ex
-defmodule MyApp.Bling do
-  use Bling.Paddle,
-    customers: [user: MyApp.Accounts.User]
-    # ...
+config :bling_paddle,
+  bling: MyApp.Bling,
+  repo: MyApp.Repo,
+  customers: [
+    user: MyApp.Accounts.User
+  ],
+  subscription: MyApp.Subscriptions.Subscription,
+  receipt: MyApp.Subscriptions.Receipt,
+  paddle: [
+    sandbox: true, # make sure to set to false when in production
+    currency: "USD",
+    vendor_id: 12345,
+    vendor_auth_code: "auth-code-here",
+    public_key: """
+    -----BEGIN PUBLIC KEY-----
+    your paddle webhook public key here
+    -----END PUBLIC KEY-----
+    """
+  ]
 ```
 
 Install the paddle js required to show the checkout widgets somewhere in your layout:
@@ -121,16 +121,18 @@ That is all that is needed for installation!
 
 Read on to learn how to use everything.
 
-## Bling module
+## Bling
 
-The Bling module installed in your project has a few helpful methods for deriving information:
+The Bling module has a few helpful methods for deriving information:
 
 ```elixir
-MyApp.Accounts.User = MyApp.Bling.module_from_customer_type("user")
-"user" = MyApp.Bling.customer_type_from_struct(%MyApp.Accounts.User{})
+MyApp.Accounts.User = Bling.Paddle.module_from_customer_type("user")
+"user" = Bling.Paddle.customer_type_from_struct(%MyApp.Accounts.User{})
 ```
 
-You can also implement these methods in your `MyApp.Bling` module to extend functionality:
+## Bling Behaviour
+
+These methods are implemented in your `MyApp.Bling` module to customize functionality:
 
 - `def paddle_customer_info(customer)`
   - return a map with keys `email`, `country`, and `postcode` to be used when creating a new subscription in paddle.

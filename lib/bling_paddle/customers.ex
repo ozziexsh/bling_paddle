@@ -1,6 +1,5 @@
 defmodule Bling.Paddle.Customers do
   alias Bling.Paddle.Util
-  alias Bling.Paddle.Entity
   alias Bling.Paddle.Subscriptions
 
   @default_name "default"
@@ -9,7 +8,7 @@ defmodule Bling.Paddle.Customers do
   Fetches all subscriptions for a customer.
   """
   def subscriptions(customer) do
-    repo = Entity.repo(customer)
+    repo = Bling.Paddle.repo()
 
     customer
     |> repo.preload(:subscriptions)
@@ -151,14 +150,14 @@ defmodule Bling.Paddle.Customers do
   Uses email, country, and postcode keys from map returned in your `MyApp.Bling.paddle_customer_info(customer)` function.
   """
   def generate_pay_link(customer, opts) do
-    bling = Entity.bling(customer)
+    bling = Bling.Paddle.bling()
     customer_params = Util.maybe_call({bling, :paddle_customer_info, [customer]}, %{})
 
     passthrough =
       opts
       |> Keyword.get(:passthrough, %{})
       |> Map.put(:customer_id, customer.id)
-      |> Map.put(:customer_type, bling.customer_type_from_struct(customer))
+      |> Map.put(:customer_type, Bling.Paddle.customer_type_from_struct(customer))
       |> Jason.encode!()
 
     opts

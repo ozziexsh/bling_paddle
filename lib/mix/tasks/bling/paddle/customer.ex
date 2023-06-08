@@ -34,7 +34,7 @@ defmodule Mix.Tasks.Bling.Paddle.Customer do
     Mix.Shell.IO.info("""
     Make sure to finish setting up the customer as per the documentation:
 
-    https://hexdocs.pm/bling_paddle/readme.html#customers
+    https://hexdocs.pm/bling_paddle/readme.html#installation
     """)
   end
 

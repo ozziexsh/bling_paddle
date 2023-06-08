@@ -1,5 +1,4 @@
 defmodule Bling.Paddle.Subscriptions do
-  alias Bling.Paddle.Entity
   alias Bling.Paddle.Api
 
   @status_active "active"
@@ -80,7 +79,7 @@ defmodule Bling.Paddle.Subscriptions do
   def swap(subscription, opts) do
     guard_against_updates!(subscription)
 
-    bling = Entity.bling(subscription)
+    repo = Bling.Paddle.repo()
     plan = opts[:plan_id]
 
     params = opts |> Enum.into(%{})
@@ -91,7 +90,7 @@ defmodule Bling.Paddle.Subscriptions do
     |> Ecto.Changeset.change(%{
       paddle_plan: plan
     })
-    |> bling.repo().update!()
+    |> repo.update!()
   end
 
   def swap_and_invoice(subscription, opts) do
@@ -100,7 +99,7 @@ defmodule Bling.Paddle.Subscriptions do
   end
 
   def pause(subscription) do
-    bling = Entity.bling(subscription)
+    repo = Bling.Paddle.repo()
     update_paddle(subscription, %{pause: true})
 
     info = paddle_info(subscription)
@@ -112,11 +111,11 @@ defmodule Bling.Paddle.Subscriptions do
       paddle_status: info["state"],
       paused_from: paused_from |> DateTime.truncate(:second)
     })
-    |> bling.repo().update!()
+    |> repo.update!()
   end
 
   def unpause(subscription) do
-    bling = Entity.bling(subscription)
+    repo = Bling.Paddle.repo()
     update_paddle(subscription, %{pause: false})
 
     subscription
@@ -125,7 +124,7 @@ defmodule Bling.Paddle.Subscriptions do
       ends_at: nil,
       paused_from: nil
     })
-    |> bling.repo().update!()
+    |> repo.update!()
   end
 
   def cancel(subscription) do
@@ -158,7 +157,7 @@ defmodule Bling.Paddle.Subscriptions do
   end
 
   def cancel_at(subscription, datetime) do
-    bling = Entity.bling(subscription)
+    repo = Bling.Paddle.repo()
 
     Api.cancel_subscription(%{
       subscription_id: subscription.paddle_id
@@ -169,7 +168,7 @@ defmodule Bling.Paddle.Subscriptions do
       paddle_status: @status_deleted,
       ends_at: datetime |> DateTime.truncate(:second)
     })
-    |> bling.repo().update!()
+    |> repo.update!()
   end
 
   def update_url(subscription) do
@@ -231,7 +230,7 @@ defmodule Bling.Paddle.Subscriptions do
 
   def update_quantity(subscription, opts \\ []) do
     guard_against_updates!(subscription)
-    bling = Entity.bling(subscription)
+    repo = Bling.Paddle.repo()
     quantity = Keyword.get(opts, :quantity, 1)
 
     if quantity < 1 do
@@ -244,7 +243,7 @@ defmodule Bling.Paddle.Subscriptions do
     |> Ecto.Changeset.change(%{
       quantity: quantity
     })
-    |> bling.repo().update!()
+    |> repo.update!()
   end
 
   def paddle_info(subscription) do

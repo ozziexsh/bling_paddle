@@ -20,9 +20,4 @@ defmodule Bling.PaddleTest.User do
 
     timestamps()
   end
-
-  defimpl Bling.Paddle.Entity do
-    def repo(_), do: Bling.PaddleTest.Repo
-    def bling(_), do: Bling.PaddleTest.ExampleBling
-  end
 end

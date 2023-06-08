@@ -35,24 +35,40 @@ defmodule Bling.Paddle.Api do
     post(url, params)
   end
 
+  def prices(params \\ %{}) do
+    encoded = URI.encode_query(params)
+    url = "#{checkout_url()}/prices?#{encoded}"
+
+    get(url)
+  end
+
   defp vendors_url() do
     sandbox? = Application.get_env(:bling_paddle, :paddle)[:sandbox] == true
     subdomain = if sandbox?, do: "sandbox-vendors", else: "vendors"
     "https://#{subdomain}.paddle.com/api/2.0"
   end
 
-  # todo: bring back when adding prices api
-  # defp checkout_url() do
-  #   sandbox? = Application.get_env(:bling_paddle, :paddle)[:sandbox] == true
-  #   subdomain = if sandbox?, do: "sandbox-checkout", else: "checkout"
-  #   "https://#{subdomain}.paddle.com/api/2.0"
-  # end
+  defp checkout_url() do
+    sandbox? = Application.get_env(:bling_paddle, :paddle)[:sandbox] == true
+    subdomain = if sandbox?, do: "sandbox-checkout", else: "checkout"
+    "https://#{subdomain}.paddle.com/api/2.0"
+  end
 
   defp get_auth() do
     %{
       vendor_id: Application.get_env(:bling_paddle, :paddle)[:vendor_id],
       vendor_auth_code: Application.get_env(:bling_paddle, :paddle)[:vendor_auth_code]
     }
+  end
+
+  defp get(url) do
+    case Bling.Paddle.Http.get(url, [{"Content-Type", "application/json"}]) do
+      {:ok, %HTTPoison.Response{} = response} ->
+        response.body |> Jason.decode!() |> Map.get("response")
+
+      {:error, _error} ->
+        nil
+    end
   end
 
   defp post(url, params) do
