@@ -35,7 +35,7 @@ defmodule Bling.Paddle.Api do
     post(url, params)
   end
 
-  def prices(params \\ %{}) do
+  def product_prices(params \\ %{}) do
     encoded = URI.encode_query(params)
     url = "#{checkout_url()}/prices?#{encoded}"
 
