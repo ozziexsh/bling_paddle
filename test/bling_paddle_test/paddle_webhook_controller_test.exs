@@ -6,7 +6,6 @@ defmodule Bling.PaddleTest.PaddleWebhookControllerTest do
 
   defp build_conn() do
     Phoenix.ConnTest.build_conn()
-    |> Plug.Conn.assign(:bling, Bling.PaddleTest.ExampleBling)
   end
 
   describe "payment succeeded" do

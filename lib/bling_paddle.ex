@@ -1,37 +1,44 @@
 defmodule Bling.Paddle do
-  defmacro __using__(opts) do
-    opts = Keyword.put(opts, :caller, __CALLER__.module)
+  @type customer :: any
 
-    quote do
-      @repo unquote(opts[:repo])
-      @customers unquote(opts[:customers])
-      @subscription unquote(opts[:subscription])
-      @receipt unquote(opts[:receipt])
+  @callback paddle_customer_info(customer) :: map
+  @callback handle_paddle_webhook_event(term) :: any
 
-      def repo, do: @repo
-      def customers, do: @customers
-      def subscription, do: @subscription
-      def receipt, do: @receipt
+  def bling do
+    Application.get_env(:bling_paddle, :bling)
+  end
 
-      def module_from_customer_type(type) do
-        Enum.find_value(customers(), fn {name, mod} ->
-          if to_string(name) == to_string(type), do: mod, else: nil
-        end)
-      end
+  def repo do
+    Application.get_env(:bling_paddle, :repo)
+  end
 
-      def customer_type_from_struct(customer) do
-        Enum.find_value(customers(), fn {name, mod} ->
-          if customer.__struct__ == mod, do: to_string(name), else: nil
-        end)
-      end
+  def customers do
+    Application.get_env(:bling_paddle, :customers, [])
+  end
 
-      for entity <- [@subscription, @receipt | Keyword.values(@customers)] do
-        defimpl Bling.Paddle.Entity, for: entity do
-          def repo(_entity), do: unquote(opts[:repo])
-          def bling(_entity), do: unquote(opts[:caller])
-        end
-      end
-    end
+  def subscription do
+    Application.get_env(:bling_paddle, :subscription)
+  end
+
+  def receipt do
+    Application.get_env(:bling_paddle, :receipt)
+  end
+
+  def currency do
+    Application.get_env(:bling_paddle, :paddle, [])
+    |> Keyword.get(:currency, "USD")
+  end
+
+  def module_from_customer_type(type) do
+    Enum.find_value(customers(), fn {name, mod} ->
+      if to_string(name) == to_string(type), do: mod, else: nil
+    end)
+  end
+
+  def customer_type_from_struct(customer) do
+    Enum.find_value(customers(), fn {name, mod} ->
+      if customer.__struct__ == mod, do: to_string(name), else: nil
+    end)
   end
 
   def script_tags() do

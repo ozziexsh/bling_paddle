@@ -4,9 +4,9 @@ defmodule Bling.Paddle.Controllers.PaddleWebhookController do
 
   def webhook(conn, params) do
     if verify_signature(params) do
-      bling = conn.assigns.bling
+      bling = Bling.Paddle.bling()
 
-      handle(params, bling)
+      handle(params)
 
       Bling.Paddle.Util.maybe_call({bling, :handle_paddle_webhook_event, [params]})
 
@@ -16,12 +16,12 @@ defmodule Bling.Paddle.Controllers.PaddleWebhookController do
     end
   end
 
-  def handle(%{"alert_name" => "payment_succeeded"} = payload, bling) do
-    with nil <- receipt_exists(payload["order_id"], bling),
+  def handle(%{"alert_name" => "payment_succeeded"} = payload) do
+    with nil <- receipt_exists(payload["order_id"]),
          {:ok, passthrough} <- verify_passthrough(payload) do
       {:ok, paid_at, _} = "#{payload["event_time"]}Z" |> DateTime.from_iso8601()
 
-      bling.receipt()
+      Bling.Paddle.receipt()
       |> struct()
       |> Ecto.Changeset.change(%{
         customer_id: passthrough["customer_id"],
@@ -35,18 +35,18 @@ defmodule Bling.Paddle.Controllers.PaddleWebhookController do
         receipt_url: payload["receipt_url"],
         paid_at: paid_at |> DateTime.truncate(:second)
       })
-      |> bling.repo().insert!()
+      |> Bling.Paddle.repo().insert!()
     else
       _ -> nil
     end
   end
 
-  def handle(%{"alert_name" => "subscription_payment_succeeded"} = payload, bling) do
-    with nil <- receipt_exists(payload["order_id"], bling),
+  def handle(%{"alert_name" => "subscription_payment_succeeded"} = payload) do
+    with nil <- receipt_exists(payload["order_id"]),
          {:ok, passthrough} <- verify_passthrough(payload) do
       {:ok, paid_at, _} = "#{payload["event_time"]}Z" |> DateTime.from_iso8601()
 
-      bling.receipt()
+      Bling.Paddle.receipt()
       |> struct()
       |> Ecto.Changeset.change(%{
         paddle_subscription_id: str_int(payload["subscription_id"]),
@@ -61,14 +61,14 @@ defmodule Bling.Paddle.Controllers.PaddleWebhookController do
         receipt_url: payload["receipt_url"],
         paid_at: paid_at |> DateTime.truncate(:second)
       })
-      |> bling.repo().insert!()
+      |> Bling.Paddle.repo().insert!()
     else
       _ -> nil
     end
   end
 
-  def handle(%{"alert_name" => "subscription_cancelled"} = payload, bling) do
-    subscription = verify_subscription(payload["subscription_id"], bling)
+  def handle(%{"alert_name" => "subscription_cancelled"} = payload) do
+    subscription = verify_subscription(payload["subscription_id"])
 
     if !subscription do
       :ok
@@ -98,12 +98,12 @@ defmodule Bling.Paddle.Controllers.PaddleWebhookController do
             else: subscription.paddle_status
           )
       })
-      |> bling.repo().update!()
+      |> Bling.Paddle.repo().update!()
     end
   end
 
-  def handle(%{"alert_name" => "subscription_updated"} = payload, bling) do
-    subscription = verify_subscription(payload["subscription_id"], bling)
+  def handle(%{"alert_name" => "subscription_updated"} = payload) do
+    subscription = verify_subscription(payload["subscription_id"])
 
     if !subscription do
       :ok
@@ -133,11 +133,11 @@ defmodule Bling.Paddle.Controllers.PaddleWebhookController do
           ),
         paused_from: paused_from
       })
-      |> bling.repo().update!()
+      |> Bling.Paddle.repo().update!()
     end
   end
 
-  def handle(%{"alert_name" => "subscription_created"} = payload, bling) do
+  def handle(%{"alert_name" => "subscription_created"} = payload) do
     case verify_passthrough(payload) do
       {:ok, passthrough} ->
         trial_ends_at =
@@ -148,7 +148,7 @@ defmodule Bling.Paddle.Controllers.PaddleWebhookController do
             nil
           end
 
-        struct(bling.subscription())
+        struct(Bling.Paddle.subscription())
         |> Ecto.Changeset.change(%{
           customer_id: passthrough["customer_id"],
           customer_type: passthrough["customer_type"],
@@ -159,7 +159,7 @@ defmodule Bling.Paddle.Controllers.PaddleWebhookController do
           quantity: str_int(payload["quantity"]),
           trial_ends_at: trial_ends_at
         })
-        |> bling.repo().insert!()
+        |> Bling.Paddle.repo().insert!()
 
       _ ->
         nil
@@ -168,12 +168,12 @@ defmodule Bling.Paddle.Controllers.PaddleWebhookController do
 
   def handle(_, _), do: :ok
 
-  defp verify_subscription(id, bling) do
-    bling.repo().get_by(bling.subscription(), paddle_id: id)
+  defp verify_subscription(id) do
+    Bling.Paddle.repo().get_by(Bling.Paddle.subscription(), paddle_id: id)
   end
 
-  defp receipt_exists(receiptId, bling) do
-    bling.repo().get_by(bling.receipt(), order_id: receiptId)
+  defp receipt_exists(receiptId) do
+    Bling.Paddle.repo().get_by(Bling.Paddle.receipt(), order_id: receiptId)
   end
 
   defp verify_passthrough(payload) do

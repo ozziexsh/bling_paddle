@@ -2,6 +2,10 @@ defmodule Bling.PaddleTest.CustomersTest do
   use Bling.PaddleTest.RepoCase
   alias Bling.Paddle.Customers
 
+  setup do
+    Application.put_env(:bling_paddle, :http_lib, HTTPoison)
+  end
+
   test "it can create checkout urls" do
     customer = create_user()
 

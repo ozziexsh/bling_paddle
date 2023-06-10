@@ -15,9 +15,4 @@ defmodule Bling.PaddleTest.Subscription do
 
     timestamps(type: :utc_datetime)
   end
-
-  defimpl Bling.Paddle.Entity do
-    def repo(_), do: Bling.PaddleTest.Repo
-    def bling(_), do: Bling.PaddleTest.ExampleBling
-  end
 end
