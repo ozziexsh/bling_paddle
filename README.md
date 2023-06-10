@@ -25,7 +25,7 @@ Add `bling_paddle` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:bling_paddle, "~> 0.1.0"}
+    {:bling_paddle, "~> 0.2.0"}
   ]
 end
 ```
@@ -105,7 +105,7 @@ defmodule MyAppWeb.Router do
 
   # ... your routes
 
-  paddle_webhook_route("/webhooks/paddle", bling: MyApp.Bling)
+  paddle_webhook_route("/webhooks/paddle")
 end
 ```
 

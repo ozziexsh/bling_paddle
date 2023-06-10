@@ -2,7 +2,7 @@ defmodule <%= @module_name %>.Bling do
   @behaviour Bling.Paddle
 
   @impl Bling.Paddle
-  def paddle_customer_info(_customer) do
+  def paddle_customer_info(customer) do
     # valid map keys are `email`, `country`, and `postcode`
     case customer do
       # %<%= @module_name %>.Accounts.User{} -> %{email: customer.email}
